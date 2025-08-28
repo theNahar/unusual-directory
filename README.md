@@ -183,9 +183,79 @@ export const directory = {
 
 ## Deployment
 
-Deploy to Vercel with one click:
+### 🚀 Deploy to Vercel (Recommended)
 
+#### Option 1: One-Click Deploy
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/theNahar/unusual-directory)
+
+#### Option 2: Manual Deployment
+
+1. **Push to GitHub**
+   ```bash
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+   ```
+
+2. **Connect to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Sign up/Login with GitHub
+   - Click "New Project"
+   - Import your repository
+   - Configure environment variables
+
+3. **Set Environment Variables in Vercel**
+   - Go to your project settings
+   - Navigate to "Environment Variables"
+   - Add all variables from your `.env` file:
+     - `TURSO_DATABASE_URL`
+     - `TURSO_AUTH_TOKEN`
+     - `BOHO_PASSWORD`
+     - `BOHO_SECRET`
+     - `ANTHROPIC_API_KEY`
+     - `EXASEARCH_API_KEY`
+     - `LOOPS_API_KEY`
+     - `NEXT_PUBLIC_SITE_URL`
+
+4. **Deploy**
+   - Vercel will automatically build and deploy your app
+   - Your app will be available at `your-app-name.vercel.app`
+
+### 🌐 Custom Domain Setup
+
+#### Free Subdomain
+- Your app will be available at: `your-app-name.vercel.app`
+- Update `NEXT_PUBLIC_SITE_URL` in Vercel environment variables
+
+#### Custom Domain (Optional)
+1. **Purchase a domain** (Namecheap, GoDaddy, etc.)
+2. **Add domain in Vercel**:
+   - Go to project settings → Domains
+   - Add your custom domain
+   - Follow DNS configuration instructions
+3. **Update environment variables**:
+   - Set `NEXT_PUBLIC_SITE_URL` to your custom domain
+
+### 🔧 Post-Deployment
+
+1. **Run Database Migrations**
+   ```bash
+   # In Vercel dashboard or via CLI
+   vercel env pull .env.local
+   npm run db:migrate
+   ```
+
+2. **Verify Setup**
+   - Visit your deployed URL
+   - Test admin login at `/admin`
+   - Add some test bookmarks
+   - Verify all features work
+
+### 📊 Monitoring
+
+- **Vercel Analytics**: Built-in performance monitoring
+- **Function Logs**: View serverless function execution
+- **Database**: Monitor Turso database usage
 
 The project is optimized for Vercel deployment with:
 
@@ -193,6 +263,7 @@ The project is optimized for Vercel deployment with:
 - Automatic SQLite database setup
 - Built-in analytics
 - Zero-config deployment
+- Serverless functions optimization
 
 ## Contributing
 
@@ -216,7 +287,5 @@ For support:
 - Join our community
 
 ## Created by
-
-Forked from 
 
 Built with ❤️ for the open source community, forked from [9d8](https://github.com/9d8dev/directory).
