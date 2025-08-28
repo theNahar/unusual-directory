@@ -51,7 +51,7 @@ Built with modern web technologies and designed with a focus on user experience,
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/theNahar/directory.git
+git clone https://github.com/theNahar/unusual-directory.git
 cd directory
 ```
 
@@ -186,7 +186,7 @@ export const directory = {
 ### 🚀 Deploy to Vercel (Recommended)
 
 #### Option 1: One-Click Deploy
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/theNahar/directory)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/theNahar/unusual-directory)
 
 #### Option 2: Manual Deployment
 
@@ -286,7 +286,7 @@ MIT License - feel free to use this template for your own projects!
 
 For support:
 
-- Open an issue in the [GitHub repository](https://github.com/theNahar/directory)
+- Open an issue in the [GitHub repository](https://github.com/theNahar/unusual-directory)
 - Check out the documentation
 - Join our community
 
