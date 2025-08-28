@@ -1,36 +1,222 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# unusual-directory
 
-## Getting Started
 
-First, run the development server:
+
+
+A modern, AI-powered Next.js directory template for creating beautiful resource collections and bookmarks. Perfect for creating your own curated list of resources, bookmarks, or link directories.
+
+## Overview
+
+Built with modern web technologies and designed with a focus on user experience, this template provides everything you need to create a professional resource directory:
+
+- **Resource Management**: Organize and share bookmarks with rich metadata
+- **AI Integration**: Automatic content generation and smart categorization
+- **Newsletter**: Built-in email subscription with Loops integration
+- **Beautiful UI**: Responsive design with dark/light mode support
+- **Admin Dashboard**: Powerful tools for content management
+
+## Tech Stack
+
+- **Framework**: Next.js 14+ with App Router and Server Actions
+- **Database**: Turso (SQLite) with Drizzle ORM
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **AI**: Anthropic Claude for content generation
+- **Search**: Exa for semantic search capabilities
+- **Analytics**: Built-in Vercel Analytics
+
+## Features
+
+### For Users
+
+- **Smart Search**: Search across titles, descriptions, categories, and tags
+- **Category Filtering**: Browse resources by custom categories
+- **Tag System**: Filter and organize bookmarks with custom tags
+- **Status Indicators**: See favorite and archived bookmarks
+- **Responsive Design**: Works beautifully on all devices
+- **Theme Support**: Automatic dark/light mode
+- **Newsletter**: Subscribe for weekly resource updates
+
+### For Admins
+
+- **Secure Admin Panel**: Password-protected admin interface
+- **Rich Content Editor**: Full-featured bookmark management with organized form fields
+- **Tag Management**: Add and manage tags for better organization
+- **Status Management**: Mark bookmarks as favorite or archived
+- **AI Assistance**: Automatic metadata extraction and content generation
+- **Dashboard**: View statistics and manage content
+- **Category Management**: Create and organize categories
+
+## Quick Start
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/theNahar/unusual-directory.git
+cd unusual-directory
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Set up your environment variables:
 
-## Learn More
+```bash
+cp .env.example .env
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Database Configuration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `TURSO_DATABASE_URL`: Your Turso SQLite database URL
+- `TURSO_AUTH_TOKEN`: Authentication token for Turso database access
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Authentication
 
-## Deploy on Vercel
+- `BOHO_PASSWORD`: Password for accessing the `/admin` routes
+  - Must be at least 8 characters
+  - Used for admin dashboard authentication
+- `BOHO_SECRET`: Secret key for JWT token signing
+  - Used for secure session management
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### AI Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `ANTHROPIC_API_KEY`: Anthropic API key for AI features
+  - Required for content generation
+  - Get one at [Anthropic Console](https://console.anthropic.com)
+- `EXASEARCH_API_KEY`: Exa API key for enhanced search capabilities
+  - Powers the semantic search feature
+  - Get one at [Exa](https://exa.ai)
+
+### Email Features
+
+- `LOOPS_API_KEY`: API key for email subscription functionality
+  - Required for newsletter features
+  - Get one at [Loops](https://loops.so)
+
+### Site Configuration
+
+- `NEXT_PUBLIC_SITE_URL`: Your site's public URL
+  - Format: `https://yourdomain.com`
+  - Used for generating OpenGraph images and links
+
+4. Initialize the database:
+
+```bash
+pnpm db:generate   # Generate migrations
+pnpm db:migrate    # Run migrations
+pnpm db:seed      # Seed initial data (optional)
+```
+
+5. Start the development server:
+
+```bash
+pnpm dev
+```
+
+## Admin Dashboard
+
+The admin dashboard at `/admin` provides a powerful interface for managing your directory:
+
+### Managing Bookmarks
+
+1. **Add Single Bookmark**
+
+   - **Name**: Enter the bookmark name (required)
+   - **Description**: Brief description of the bookmark
+   - **Category**: Select from existing categories or create new ones
+   - **Tags**: Add comma-separated tags for better organization
+   - **Overview**: Detailed overview or notes about the bookmark
+   - **Favicon**: Custom favicon URL for the bookmark
+   - **OG Image**: Custom Open Graph image URL
+   - **URL**: Website URL with AI-powered metadata extraction
+   - **Status**: Mark as favorite or archived
+
+2. **Bulk Import**
+
+   - Paste multiple URLs for batch processing
+   - Automatic metadata extraction for all entries
+   - Review and edit before final import
+
+3. **Edit Bookmarks**
+   - Update all metadata fields including tags and status
+   - Regenerate AI content
+   - Manage bookmark status (favorite/archived)
+   - View analytics and engagement
+
+### Managing Categories
+
+- Create custom categories with colors and icons
+- Organize bookmarks into categories
+- Edit category metadata
+- View category statistics
+
+### Managing Tags
+
+- Add comma-separated tags to bookmarks
+- Tags are displayed as badges on bookmark cards and detail pages
+- Use tags for better organization and filtering
+- Tags support free-form text input
+
+### API Integration
+
+The admin interface uses Next.js Server Actions for:
+
+- Real-time updates
+- Optimistic UI
+- Error handling
+- Progress tracking
+
+## Customization
+
+Edit `directory.config.ts` to customize your site:
+
+```typescript
+export const directory = {
+  baseUrl: "https://your-domain.com",
+  name: "Your Directory Name",
+  title: "Your Site Title",
+  description: "Your site description",
+};
+```
+
+## Deployment
+
+Deploy to Vercel with one click:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/theNahar/unusual-directory)
+
+The project is optimized for Vercel deployment with:
+
+- Edge runtime support
+- Automatic SQLite database setup
+- Built-in analytics
+- Zero-config deployment
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. Some areas we'd love help with:
+
+- Additional bookmark import sources
+- Enhanced AI features
+- New UI components
+- Documentation improvements
+
+## License
+
+MIT License - feel free to use this template for your own projects!
+
+## Support
+
+For support:
+
+- Open an issue in the [GitHub repository](https://github.com/theNahar/unusual-directory)
+- Check out the documentation
+- Join our community
+
+## Created by
+
+Forked from 
+
+Built with ❤️ for the open source community, forked from [9d8](https://github.com/9d8dev/directory).
