@@ -22,10 +22,7 @@ export function URLScraper() {
     }
 
     try {
-      const formData = new FormData();
-      formData.append("url", url);
-
-      const response = await scrapeUrl(null, formData);
+      const response = await scrapeUrl(null, { url });
       if (response?.data) {
         setMetadata(response);
         toast.success("Successfully fetched metadata");
