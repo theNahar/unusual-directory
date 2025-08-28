@@ -7,6 +7,38 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import Exa from "exa-js";
 
+// Utility function to get favicon from URL
+async function getFaviconFromUrl(url: string): Promise<string> {
+  try {
+    const urlObj = new URL(url);
+    const faviconUrl = `${urlObj.protocol}//${urlObj.hostname}/favicon.ico`;
+    
+    // Try to fetch the favicon
+    const response = await fetch(faviconUrl, { 
+      method: 'HEAD',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; DirectoryBot/1.0)'
+      }
+    });
+    
+    if (response.ok) {
+      return faviconUrl;
+    }
+    
+    // Fallback to Google's favicon service
+    return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=32`;
+  } catch (error) {
+    console.error('Error getting favicon:', error);
+    // Return a default favicon or Google's service as fallback
+    try {
+      const urlObj = new URL(url);
+      return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=32`;
+    } catch {
+      return '/favicon.ico'; // Default fallback
+    }
+  }
+}
+
 export type ActionState = {
   success?: boolean;
   error?: string;
@@ -26,7 +58,7 @@ type BookmarkData = {
   url: string;
   overview: string;
   search_results: string;
-  favicon: string;
+  favicon: string; // Auto-generated
   ogImage: string;
   slug: string;
   categoryId: string | null;
@@ -170,7 +202,6 @@ export async function createBookmark(
     url: string;
     slug: string;
     overview: string;
-    favicon: string;
     ogImage: string;
     search_results: string;
     categoryId: string;
@@ -197,6 +228,9 @@ export async function createBookmark(
     if (!slug) {
       slug = generateSlug(title);
     }
+
+    // Auto-generate favicon from URL
+    const favicon = await getFaviconFromUrl(url);
 
     await db.insert(bookmarks).values({
       title,
@@ -268,6 +302,9 @@ export async function updateBookmark(
     if (!slug) {
       slug = generateSlug(title);
     }
+
+    // Auto-generate favicon from URL
+    const favicon = await getFaviconFromUrl(url);
 
     await db
       .update(bookmarks)

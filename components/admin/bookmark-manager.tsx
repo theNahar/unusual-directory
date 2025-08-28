@@ -143,13 +143,76 @@ export function BookmarkManager({
     description: "",
     overview: "",
     search_results: "",
-    favicon: "",
+    favicon: "", // Will be auto-generated from URL
     ogImage: "",
+    imageUrl: "", // New field for screenshot API URL
     categoryId: "none",
     tags: "",
     isFavorite: false,
     isArchived: false,
   });
+
+  // Screenshot API state
+  const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+
+  // Screenshot API function
+  const takeScreenshot = async (url: string) => {
+    setIsTakingScreenshot(true);
+    try {
+      // Replace this URL with your actual screenshot API endpoint
+      const response = await fetch('/api/screenshot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to take screenshot');
+      }
+
+      const data = await response.json();
+      setFormData(prev => ({
+        ...prev,
+        ogImage: data.imageUrl,
+      }));
+      toast.success('Screenshot taken successfully!');
+    } catch (error) {
+      console.error('Error taking screenshot:', error);
+      toast.error('Failed to take screenshot');
+    } finally {
+      setIsTakingScreenshot(false);
+    }
+  };
+
+  // Handle image processing
+  const handleImageProcess = async () => {
+    if (!formData.imageUrl && !uploadedImage) {
+      toast.error('Please provide either a URL for screenshot or upload an image');
+      return;
+    }
+
+    if (formData.imageUrl && uploadedImage) {
+      // If both are provided, prioritize URL
+      await takeScreenshot(formData.imageUrl);
+      return;
+    }
+
+    if (formData.imageUrl) {
+      // Take screenshot from URL
+      await takeScreenshot(formData.imageUrl);
+    } else if (uploadedImage) {
+      // Handle uploaded image (you can implement file upload logic here)
+      // For now, we'll just set a placeholder
+      setFormData(prev => ({
+        ...prev,
+        ogImage: URL.createObjectURL(uploadedImage),
+      }));
+      toast.success('Image uploaded successfully!');
+    }
+  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -164,8 +227,9 @@ export function BookmarkManager({
         url: formData.get("url") as string,
         slug: formData.get("slug") as string,
         overview: formData.get("overview") as string,
-        favicon: formData.get("favicon") as string,
+
         ogImage: formData.get("ogImage") as string,
+        imageUrl: formData.get("imageUrl") as string,
         search_results: formData.get("search_results") as string,
         categoryId: formData.get("categoryId") as string,
         tags: formData.get("tags") as string,
@@ -211,6 +275,7 @@ export function BookmarkManager({
           search_results: selectedBookmark.search_results || "",
           favicon: selectedBookmark.favicon || "",
           ogImage: selectedBookmark.ogImage || "",
+          imageUrl: "",
           categoryId: selectedBookmark.categoryId?.toString() || "none",
           tags: selectedBookmark.tags || "",
           isFavorite: selectedBookmark.isFavorite,
@@ -232,11 +297,13 @@ export function BookmarkManager({
       search_results: "",
       favicon: "",
       ogImage: "",
+      imageUrl: "",
       categoryId: "none",
       tags: "",
       isFavorite: false,
       isArchived: false,
     });
+    setUploadedImage(null);
   };
 
   const handleEdit = (bookmark: BookmarkWithCategory) => {
@@ -581,76 +648,83 @@ export function BookmarkManager({
                   />
                 </div>
 
-                {/* 6. Favicon */}
-                <div className="space-y-2">
-                  <Label htmlFor="favicon">Favicon</Label>
-                  <Input
-                    id="favicon"
-                    name="favicon"
-                    type="url"
-                    value={formData.favicon}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        favicon: e.target.value,
-                      }))
-                    }
-                    placeholder="https://example.com/favicon.ico"
-                  />
-                </div>
 
-                {/* 7. OG Image */}
-                <div className="space-y-2">
-                  <Label htmlFor="ogImage">OG Image</Label>
-                  <Input
-                    id="ogImage"
-                    name="ogImage"
-                    type="url"
-                    value={formData.ogImage}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        ogImage: e.target.value,
-                      }))
-                    }
-                    placeholder="https://example.com/og-image.jpg"
-                  />
-                </div>
 
-                {/* URL and Generate Button */}
+                {/* 6. Image */}
                 <div className="space-y-2">
-                  <Label htmlFor="url">URL</Label>
-                  <div className="flex gap-2">
+                  <Label htmlFor="imageUrl">Image</Label>
+                  <div className="space-y-2">
+                    {/* Screenshot URL Input */}
                     <Input
-                      id="url"
-                      name="url"
+                      id="imageUrl"
+                      name="imageUrl"
                       type="url"
-                      required
-                      value={formData.url}
-                      onChange={handleUrlChange}
-                      placeholder="https://example.com"
+                      value={formData.imageUrl}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          imageUrl: e.target.value,
+                        }))
+                      }
+                      placeholder="https://example.com (for screenshot)"
                     />
+                    
+                    {/* File Upload */}
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="imageUpload"
+                        name="imageUpload"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setUploadedImage(e.target.files?.[0] || null)}
+                        className="flex-1"
+                      />
+                    </div>
+                    
+                    {/* Process Button */}
                     <Button
                       type="button"
                       variant="secondary"
-                      onClick={() => {
-                        const form = document.getElementById(
-                          "bookmarkForm",
-                        ) as HTMLFormElement;
-                        if (form) handleGenerateContent(form);
-                      }}
-                      disabled={isGenerating}
+                      onClick={handleImageProcess}
+                      disabled={isTakingScreenshot}
+                      className="w-full"
                     >
-                      {isGenerating ? (
+                      {isTakingScreenshot ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generating...
+                          Taking Screenshot...
                         </>
                       ) : (
-                        "Generate"
+                        "Process Image"
                       )}
                     </Button>
                   </div>
+                  
+                  {/* Display current image */}
+                  {formData.ogImage && (
+                    <div className="mt-2">
+                      <Label className="text-sm text-muted-foreground">Current Image:</Label>
+                      <img 
+                        src={formData.ogImage} 
+                        alt="Preview" 
+                        className="mt-1 max-w-full h-32 object-cover rounded border"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* 7. URL Field */}
+                <div className="space-y-2">
+                  <Label htmlFor="url">URL</Label>
+                  <Input
+                    id="url"
+                    name="url"
+                    type="url"
+                    required
+                    value={formData.url}
+                    onChange={handleUrlChange}
+                    placeholder="https://example.com"
+                  />
                 </div>
 
                 <div className="flex items-center gap-4">
