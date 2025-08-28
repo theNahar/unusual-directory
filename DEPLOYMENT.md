@@ -59,6 +59,10 @@ In your Vercel project dashboard:
 - Your app will be available at: `your-app-name.vercel.app`
 - Update `NEXT_PUBLIC_SITE_URL` to this URL
 
+#### Custom Domain
+- Your app is configured for: `https://dir.nahar.tv`
+- Update `NEXT_PUBLIC_SITE_URL` to `https://dir.nahar.tv`
+
 #### Custom Domain (Optional)
 1. **Add domain in Vercel**:
    - Go to **Settings** → **Domains**

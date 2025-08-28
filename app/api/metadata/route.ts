@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { load } from "cheerio";
 
-export async function GET(request: Request) {
+export async function GET(
+  request: Request,
+  { searchParams }: { searchParams: URLSearchParams }
+) {
   try {
-    const { searchParams } = new URL(request.url);
     const url = searchParams.get("url");
 
     if (!url) {

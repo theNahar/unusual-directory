@@ -51,8 +51,8 @@ Built with modern web technologies and designed with a focus on user experience,
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/theNahar/unusual-directory.git
-cd unusual-directory
+git clone https://github.com/theNahar/directory.git
+cd directory
 ```
 
 2. Install dependencies:
@@ -186,7 +186,7 @@ export const directory = {
 ### 🚀 Deploy to Vercel (Recommended)
 
 #### Option 1: One-Click Deploy
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/theNahar/unusual-directory)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/theNahar/directory)
 
 #### Option 2: Manual Deployment
 
@@ -226,6 +226,10 @@ export const directory = {
 #### Free Subdomain
 - Your app will be available at: `your-app-name.vercel.app`
 - Update `NEXT_PUBLIC_SITE_URL` in Vercel environment variables
+
+#### Custom Domain
+- Your app is configured for: `https://dir.nahar.tv`
+- Update `NEXT_PUBLIC_SITE_URL` to `https://dir.nahar.tv`
 
 #### Custom Domain (Optional)
 1. **Purchase a domain** (Namecheap, GoDaddy, etc.)
@@ -282,7 +286,7 @@ MIT License - feel free to use this template for your own projects!
 
 For support:
 
-- Open an issue in the [GitHub repository](https://github.com/theNahar/unusual-directory)
+- Open an issue in the [GitHub repository](https://github.com/theNahar/directory)
 - Check out the documentation
 - Join our community
 
