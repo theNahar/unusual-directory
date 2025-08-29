@@ -390,7 +390,6 @@ export function BookmarkManager({
           title: result.title || prev.title,
           description: result.description || prev.description,
           overview: result.overview || prev.overview,
-          favicon: result.favicon || prev.favicon,
           ogImage: result.ogImage || prev.ogImage,
           slug: result.slug || prev.slug,
         }));
