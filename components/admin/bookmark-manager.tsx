@@ -143,7 +143,6 @@ export function BookmarkManager({
     description: "",
     overview: "",
     search_results: "",
-    favicon: "", // Will be auto-generated from URL
     ogImage: "",
     imageUrl: "", // New field for screenshot API URL
     categoryId: "none",
