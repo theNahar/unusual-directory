@@ -55,9 +55,7 @@ export async function POST(request: NextRequest) {
         dpr: 1,
         format: 'jpeg',
         quality: 82
-      }),
-      // Add timeout to prevent hanging
-      signal: AbortSignal.timeout(60000), // 60 seconds timeout
+      })
     });
 
     if (!response.ok) {
@@ -80,10 +78,10 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
         return NextResponse.json(
-          { 
-            error: "Screenshot request timed out. The API took too long to respond.",
-            details: "Request timed out after 45 seconds"
-          },
+                     { 
+             error: "Screenshot request timed out. The API took too long to respond.",
+             details: "Request timed out after 60 seconds"
+           },
           { status: 504 }
         );
       }
