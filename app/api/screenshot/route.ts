@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("Screenshot API called");
+    
     const { url } = await request.json();
+    console.log("Request URL:", url);
 
     if (!url) {
+      console.log("No URL provided");
       return NextResponse.json(
         { error: "URL is required" },
         { status: 400 }
@@ -25,8 +29,10 @@ export async function POST(request: NextRequest) {
     const screenshotApiUrl = process.env.SCREENSHOT_API_URL || "https://shot.nahar.tv/shot";
     const authToken = process.env.SCREENSHOT_AUTH_TOKEN;
     
-    console.log("Screenshot API URL:", screenshotApiUrl);
-    console.log("Auth token configured:", !!authToken);
+    console.log("Environment variables:");
+    console.log("- SCREENSHOT_API_URL:", screenshotApiUrl);
+    console.log("- SCREENSHOT_AUTH_TOKEN exists:", !!authToken);
+    console.log("- SCREENSHOT_AUTH_TOKEN value:", authToken ? `${authToken.substring(0, 10)}...` : "NOT SET");
     
     if (!authToken) {
       console.error("Screenshot API authentication not configured");
