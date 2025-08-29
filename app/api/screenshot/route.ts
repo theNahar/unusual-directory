@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         quality: 82
       }),
       // Add timeout to prevent hanging
-      signal: AbortSignal.timeout(45000), // 45 seconds timeout
+      signal: AbortSignal.timeout(60000), // 60 seconds timeout
     });
 
     if (!response.ok) {
