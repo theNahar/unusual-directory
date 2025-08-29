@@ -155,12 +155,14 @@ export function BookmarkManager({
   // Screenshot API state
   const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [screenshotError, setScreenshotError] = useState<string | null>(null);
 
   // Screenshot API function
   const takeScreenshot = async (url: string) => {
-    setIsTakingScreenshot(true);
     try {
-      // Replace this URL with your actual screenshot API endpoint
+      setIsTakingScreenshot(true);
+      setScreenshotError(null);
+      
       const response = await fetch('/api/screenshot', {
         method: 'POST',
         headers: {
@@ -169,19 +171,26 @@ export function BookmarkManager({
         body: JSON.stringify({ url }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to take screenshot');
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      setFormData(prev => ({
-        ...prev,
-        ogImage: data.imageUrl,
-      }));
-      toast.success('Screenshot taken successfully!');
+      if (data.success && data.imageUrl) {
+        setFormData(prev => ({
+          ...prev,
+          ogImage: data.imageUrl,
+        }));
+        toast.success('Screenshot taken successfully!');
+      } else {
+        throw new Error(data.error || 'Failed to take screenshot');
+      }
     } catch (error) {
       console.error('Error taking screenshot:', error);
-      toast.error('Failed to take screenshot');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to take screenshot';
+      setScreenshotError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsTakingScreenshot(false);
     }
@@ -273,7 +282,6 @@ export function BookmarkManager({
           description: selectedBookmark.description || "",
           overview: selectedBookmark.overview || "",
           search_results: selectedBookmark.search_results || "",
-          favicon: selectedBookmark.favicon || "",
           ogImage: selectedBookmark.ogImage || "",
           imageUrl: "",
           categoryId: selectedBookmark.categoryId?.toString() || "none",
@@ -295,7 +303,6 @@ export function BookmarkManager({
       description: "",
       overview: "",
       search_results: "",
-      favicon: "",
       ogImage: "",
       imageUrl: "",
       categoryId: "none",
@@ -709,6 +716,13 @@ export function BookmarkManager({
                         alt="Preview" 
                         className="mt-1 max-w-full h-32 object-cover rounded border"
                       />
+                    </div>
+                  )}
+                  
+                  {/* Display error message */}
+                  {screenshotError && (
+                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+                      <strong>Error:</strong> {screenshotError}
                     </div>
                   )}
                 </div>

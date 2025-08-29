@@ -25,9 +25,13 @@ export async function POST(request: NextRequest) {
     const screenshotApiUrl = process.env.SCREENSHOT_API_URL || "https://shot.nahar.tv/shot";
     const authToken = process.env.SCREENSHOT_AUTH_TOKEN;
     
+    console.log("Screenshot API URL:", screenshotApiUrl);
+    console.log("Auth token configured:", !!authToken);
+    
     if (!authToken) {
+      console.error("Screenshot API authentication not configured");
       return NextResponse.json(
-        { error: "Screenshot API authentication not configured" },
+        { error: "Screenshot API authentication not configured. Please set SCREENSHOT_AUTH_TOKEN environment variable." },
         { status: 500 }
       );
     }
@@ -46,10 +50,13 @@ export async function POST(request: NextRequest) {
         format: 'jpeg',
         quality: 82
       }),
+      // Add timeout to prevent hanging
+      signal: AbortSignal.timeout(45000), // 45 seconds timeout
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.error(`Screenshot API error: ${response.status}`, errorData);
       throw new Error(`Screenshot API returned ${response.status}: ${errorData.error || 'Unknown error'}`);
     }
 
@@ -62,6 +69,30 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error("Error taking screenshot:", error);
+    
+    // Handle specific error types
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        return NextResponse.json(
+          { 
+            error: "Screenshot request timed out. The API took too long to respond.",
+            details: "Request timed out after 45 seconds"
+          },
+          { status: 504 }
+        );
+      }
+      
+      if (error.message.includes('fetch')) {
+        return NextResponse.json(
+          { 
+            error: "Cannot connect to screenshot API. Please check if the API is running.",
+            details: error.message
+          },
+          { status: 503 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { 
         error: "Failed to take screenshot",
