@@ -216,7 +216,6 @@ export async function createBookmark(
     const url = formData.url;
     let slug = formData.slug;
     const overview = formData.overview;
-    const favicon = formData.favicon;
     const ogImage = formData.ogImage;
     const search_results = formData.search_results;
     const categoryId = formData.categoryId;
@@ -266,7 +265,6 @@ export async function updateBookmark(
     url: string;
     slug: string;
     overview: string;
-    favicon: string;
     ogImage: string;
     search_results: string;
     categoryId: string;
@@ -290,7 +288,6 @@ export async function updateBookmark(
     const url = formData.url;
     let slug = formData.slug;
     const overview = formData.overview;
-    const favicon = formData.favicon;
     const ogImage = formData.ogImage;
     const search_results = formData.search_results;
     const categoryId = formData.categoryId;
