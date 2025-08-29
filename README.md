@@ -101,6 +101,15 @@ cp .env.example .env
   - Format: `https://yourdomain.com`
   - Used for generating OpenGraph images and links
 
+### Screenshot API (Optional)
+
+- `SCREENSHOT_API_URL`: URL of your Docker screenshot API
+  - Default: `https://shot.nahar.tv/shot`
+  - Used for automatic website screenshots
+- `SCREENSHOT_AUTH_TOKEN`: Authentication token for screenshot API
+  - Required for API access
+  - Set this to your `AUTH_TOKEN` from the screenshot API
+
 4. Initialize the database:
 
 ```bash
@@ -128,8 +137,10 @@ The admin dashboard at `/admin` provides a powerful interface for managing your 
    - **Category**: Select from existing categories or create new ones
    - **Tags**: Add comma-separated tags for better organization
    - **Overview**: Detailed overview or notes about the bookmark
-   - **Favicon**: Custom favicon URL for the bookmark
-   - **OG Image**: Custom Open Graph image URL
+   - **Image**: Automatic screenshot generation or manual upload
+     - **URL Field**: Enter website URL for automatic screenshot via API
+     - **Upload Field**: Manually upload an image file
+     - **Process Button**: Generates screenshot from URL or processes upload
    - **URL**: Website URL with AI-powered metadata extraction
    - **Status**: Mark as favorite or archived
 

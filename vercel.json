@@ -18,6 +18,7 @@
     "EXASEARCH_API_KEY": "@exa-api-key",
     "LOOPS_API_KEY": "@loops-api-key",
     "NEXT_PUBLIC_SITE_URL": "@site-url",
-    "SCREENSHOT_API_URL": "@screenshot-api-url"
+    "SCREENSHOT_API_URL": "@screenshot-api-url",
+    "SCREENSHOT_AUTH_TOKEN": "@screenshot-auth-token"
   }
 }

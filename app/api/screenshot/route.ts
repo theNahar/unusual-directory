@@ -22,26 +22,42 @@ export async function POST(request: NextRequest) {
     }
 
     // Call your Docker screenshot API
-    // Replace this URL with your actual Docker app endpoint
-    const screenshotApiUrl = process.env.SCREENSHOT_API_URL || "http://your-docker-app-url:port/screenshot";
+    const screenshotApiUrl = process.env.SCREENSHOT_API_URL || "https://shot.nahar.tv/shot";
+    const authToken = process.env.SCREENSHOT_AUTH_TOKEN;
     
+    if (!authToken) {
+      return NextResponse.json(
+        { error: "Screenshot API authentication not configured" },
+        { status: 500 }
+      );
+    }
+
     const response = await fetch(screenshotApiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": authToken,
       },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ 
+        url,
+        width: 1920,
+        height: 1080,
+        dpr: 1,
+        format: 'jpeg',
+        quality: 82
+      }),
     });
 
     if (!response.ok) {
-      throw new Error(`Screenshot API returned ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Screenshot API returned ${response.status}: ${errorData.error || 'Unknown error'}`);
     }
 
     const data = await response.json();
 
     return NextResponse.json({
       success: true,
-      imageUrl: data.imageUrl || data.url,
+      imageUrl: data.imageUrl,
     });
 
   } catch (error) {
