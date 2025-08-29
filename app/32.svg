@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 64 64" role="img" aria-label="u-d favicon 32">
+  <title>u-d favicon 32 — DM Serif Text (straight, bold, dash spaced)</title>
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&amp;display=swap');
+      :root { color: #000; }
+      .t {
+        font-family: 'DM Serif Text', serif;
+        font-size: 36px;
+        font-weight: 400;
+        dominant-baseline: middle;
+        text-anchor: middle;
+      }
+      .stroke { fill: none; stroke: currentColor; stroke-width: 2.6; paint-order: stroke fill; }
+      .fill { fill: currentColor; }
+    </style>
+  </defs>
+
+  <text class="t stroke" x="32" y="34">
+    <tspan>u</tspan><tspan dx="3">-</tspan><tspan dx="3">d</tspan>
+  </text>
+  <text class="t fill" x="32" y="34">
+    <tspan>u</tspan><tspan dx="3">-</tspan><tspan dx="3">d</tspan>
+  </text>
+</svg>

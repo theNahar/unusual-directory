@@ -14,6 +14,10 @@ Thank you for your interest in contributing to our Directory App! This document 
 
 ## 📋 To-Do List
 
+- change the screenshot image to be .png
+- Promotion system
+- 
+
 ### 🎯 High Priority
 - [ ] **Dark/Light Mode Toggle**
   - [ ] Add toggle button in header

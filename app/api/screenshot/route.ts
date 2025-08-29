@@ -66,6 +66,38 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
+    // Download the image and save it locally
+    if (data.imageUrl) {
+      const imageResponse = await fetch(data.imageUrl);
+      if (imageResponse.ok) {
+        const imageBuffer = await imageResponse.arrayBuffer();
+        const timestamp = Date.now();
+        const randomString = Math.random().toString(36).substring(2, 15);
+        const filename = `screenshot-${timestamp}-${randomString}.jpg`;
+        
+        // Save to local storage
+        const { writeFile, mkdir } = await import("fs/promises");
+        const { join } = await import("path");
+        const { existsSync } = await import("fs");
+        
+        const imgDir = join(process.cwd(), "app", "img");
+        if (!existsSync(imgDir)) {
+          await mkdir(imgDir, { recursive: true });
+        }
+        
+        const filePath = join(imgDir, filename);
+        await writeFile(filePath, Buffer.from(imageBuffer));
+        
+        const localUrl = `/img/${filename}`;
+        
+        return NextResponse.json({
+          success: true,
+          imageUrl: localUrl,
+        });
+      }
+    }
+
+    // Fallback to external URL if local save fails
     return NextResponse.json({
       success: true,
       imageUrl: data.imageUrl,

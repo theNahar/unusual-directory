@@ -1,7 +1,7 @@
 export const directory = {
   baseUrl: "https://dir.nahar.tv",
-  name: "Directory",
-  title: "Directory - Nahar TV",
+  name: "unusual-directory",
+  title: "unusual-directory",
   description:
-    "A curated directory of resources and bookmarks.",
+    "A curated unusual-directory of resources and bookmarks.",
 };

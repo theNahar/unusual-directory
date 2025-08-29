@@ -253,14 +253,16 @@ export function BookmarkManager({
         ? await createBookmark(null, formDataObject)
         : await updateBookmark(null, formDataObject as any);
 
-      if (result.error) {
+      if (result && result.error) {
         toast.error(result.error);
-      } else {
+      } else if (result && result.success) {
         toast.success(
           isNewBookmark ? "Bookmark created!" : "Bookmark updated!",
         );
         setIsSheetOpen(false);
         resetForm();
+      } else {
+        toast.error("Failed to save bookmark");
       }
     } catch (err) {
       console.error("Error saving bookmark:", err);
