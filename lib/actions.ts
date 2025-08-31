@@ -62,8 +62,11 @@ type BookmarkData = {
   ogImage: string;
   slug: string;
   categoryId: string | null;
-  isFavorite: boolean;
+  tags: string | null;
   isArchived: boolean;
+  isPromoted: boolean;
+  visitCount: number;
+  favoriteCount: number;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -206,8 +209,8 @@ export async function createBookmark(
     search_results: string;
     categoryId: string;
     tags: string;
-    isFavorite: string;
     isArchived: string;
+    isPromoted: string;
   },
 ): Promise<ActionState> {
   try {
@@ -220,8 +223,8 @@ export async function createBookmark(
     const search_results = formData.search_results;
     const categoryId = formData.categoryId;
     const tags = formData.tags;
-    const isFavorite = formData.isFavorite === "true";
     const isArchived = formData.isArchived === "true";
+    const isPromoted = formData.isPromoted === "true";
 
     // Generate slug if not provided
     if (!slug) {
@@ -239,8 +242,8 @@ export async function createBookmark(
       categoryId: categoryId === "none" ? null : categoryId,
       tags: tags || null,
       search_results: search_results || null,
-      isFavorite,
       isArchived,
+      isPromoted,
       overview,
       favicon,
       ogImage,
@@ -269,8 +272,8 @@ export async function updateBookmark(
     search_results: string;
     categoryId: string;
     tags: string;
-    isFavorite: string;
     isArchived: string;
+    isPromoted: string;
   },
 ): Promise<ActionState> {
   try {
@@ -292,8 +295,8 @@ export async function updateBookmark(
     const search_results = formData.search_results;
     const categoryId = formData.categoryId;
     const tags = formData.tags;
-    const isFavorite = formData.isFavorite === "true";
     const isArchived = formData.isArchived === "true";
+    const isPromoted = formData.isPromoted === "true";
 
     // Generate slug if not provided
     if (!slug) {
@@ -316,8 +319,8 @@ export async function updateBookmark(
         overview,
         favicon,
         ogImage,
-        isFavorite,
-        isArchived,
+              isArchived,
+      isPromoted,
       })
       .where(eq(bookmarks.id, Number(id)));
 
@@ -417,8 +420,11 @@ export async function bulkUploadBookmarks(
           ogImage: content.ogImage,
           slug: content.slug,
           categoryId: null,
-          isFavorite: false,
+          tags: null,
           isArchived: false,
+          isPromoted: false,
+          visitCount: 0,
+          favoriteCount: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
         };

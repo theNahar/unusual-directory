@@ -166,14 +166,6 @@ export default async function Page({ params }: Props) {
                 </div>
               )}
               {/* Status Badges */}
-              {bookmark.isFavorite && (
-                <Badge
-                  variant="default"
-                  className="h-6 gap-1 px-2 text-sm bg-yellow-500 hover:bg-yellow-600"
-                >
-                  ⭐ Favorite
-                </Badge>
-              )}
               {bookmark.isArchived && (
                 <Badge
                   variant="secondary"

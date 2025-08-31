@@ -62,7 +62,9 @@ async function seed() {
       favicon: "https://github.githubassets.com/favicons/favicon.svg",
       ogImage: "https://github.githubassets.com/images/modules/site/social-cards/homepage.png",
       overview: "GitHub is where over 100 million developers shape the future of software, together. Contribute to the open source community, manage your Git repositories...",
-      isFavorite: true
+      isPromoted: true,
+      visitCount: 0,
+      favoriteCount: 0
     },
     {
       url: "https://figma.com",
@@ -73,7 +75,9 @@ async function seed() {
       favicon: "https://static.figma.com/app/icon/1/favicon.svg",
       ogImage: "https://cdn.sanity.io/images/599r6htc/localized/a279334dfd43febf8fec669011443159e9089cda-2400x1260.png?w=1200&q=70&fit=max&auto=format",
       overview: "Figma is the leading collaborative design tool for building meaningful products. Seamlessly design, prototype, develop, and collect feedback in a single platform.",
-      isFavorite: true
+      isPromoted: true,
+      visitCount: 0,
+      favoriteCount: 0
     },
     {
       url: "https://notion.so",
@@ -84,7 +88,9 @@ async function seed() {
       favicon: "https://www.notion.so/images/favicon.ico",
       ogImage: "https://www.notion.so/cdn-cgi/image/format=auto,width=640,quality=100/front-static/shared/icons/notion-app-icon-3d.png",
       overview: "A new tool that blends your everyday work apps into one. It's the all-in-one workspace for you and your team.",
-      isFavorite: true
+      isPromoted: true,
+      visitCount: 0,
+      favoriteCount: 0
     },
     {
       url: "https://www.coursera.org",
@@ -95,7 +101,9 @@ async function seed() {
       favicon: "https://d3njjcbhbojbot.cloudfront.net/web/images/favicons/favicon-v2-96x96.png",
       ogImage: "https://about.coursera.org/images/social/coursera-social.png",
       overview: "Join Coursera for free and learn online. Build skills with courses from top universities like Yale, Michigan, Stanford, and leading companies like Google and IBM.",
-      isFavorite: false
+      isPromoted: false,
+      visitCount: 0,
+      favoriteCount: 0
     },
     {
       url: "https://react.dev",
@@ -106,7 +114,9 @@ async function seed() {
       favicon: "https://react.dev/favicon.ico",
       ogImage: "https://react.dev/images/og-home.png",
       overview: "React is the library for web and native user interfaces",
-      isFavorite: true
+      isPromoted: true,
+      visitCount: 0,
+      favoriteCount: 0
     },
     {
       url: "https://dribbble.com",
@@ -117,7 +127,9 @@ async function seed() {
       favicon: "https://cdn.dribbble.com/assets/favicon-b38525134603b9513174ec887944bde1a869eb6cd414f4d640ee48ab2a15a26b.ico",
       ogImage: "https://cdn.dribbble.com/assets/art-banners/manifest-banner-1-a9f45a6adc987f0f59d08a818ffe1832447d7d4fef78fefdda4f085f6dac6660.png",
       overview: "Dribbble is the leading destination to find & showcase creative work and home to the world's best design professionals.",
-      isFavorite: false
+      isPromoted: false,
+      visitCount: 0,
+      favoriteCount: 0
     }
   ];
 

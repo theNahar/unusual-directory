@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Star, Archive, ExternalLink, Bookmark } from "lucide-react";
+import { Star, Archive, ExternalLink, Bookmark, Heart, Smile, Megaphone } from "lucide-react";
 import { Button } from "./ui/button";
+import { useUser } from "@/lib/user-context";
+import { toast } from "sonner";
 
 interface BookmarkCardProps {
   bookmark: {
@@ -17,20 +20,98 @@ interface BookmarkCardProps {
       name: string;
       color?: string;
       icon?: string;
-    };
+    } | null;
     tags?: string | null;
     favicon?: string | null;
     overview?: string | null;
     ogImage?: string | null;
     isArchived: boolean;
-    isFavorite: boolean;
+    isPromoted?: boolean;
+    visitCount?: number;
+    favoriteCount?: number;
     slug: string;
   };
+  onRemoveFavorite?: (bookmarkId: number) => void;
+  showFavoriteButton?: boolean;
 }
 
-export const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
+export const BookmarkCard = ({ 
+  bookmark, 
+  onRemoveFavorite, 
+  showFavoriteButton = false 
+}: BookmarkCardProps) => {
+  const { user } = useUser();
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const detailsUrl = `/${bookmark.slug}`;
   const externalUrl = bookmark.url;
+
+  // Check if bookmark is favorited on mount
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (!user || !showFavoriteButton) return;
+      
+      try {
+        const response = await fetch(`/api/favorites?bookmarkId=${bookmark.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setIsFavorited(data.isFavorited || false);
+        }
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [user, bookmark.id, showFavoriteButton]);
+
+  const handleFavoriteToggle = async () => {
+    if (!user) {
+      toast.error("Please sign in to manage favorites");
+      return;
+    }
+
+    if (isLoading) return;
+    setIsLoading(true);
+
+    try {
+      if (isFavorited) {
+        // Remove from favorites
+        const response = await fetch(`/api/favorites?bookmarkId=${bookmark.id}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          setIsFavorited(false);
+          toast.success("Removed from favorites");
+          onRemoveFavorite?.(bookmark.id);
+        } else {
+          toast.error("Failed to remove from favorites");
+        }
+      } else {
+        // Add to favorites
+        const response = await fetch("/api/favorites", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ bookmarkId: bookmark.id }),
+        });
+
+        if (response.ok) {
+          setIsFavorited(true);
+          toast.success("Added to favorites");
+        } else {
+          toast.error("Failed to add to favorites");
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error("An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div
@@ -42,25 +123,30 @@ export const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
         bookmark.isArchived && "opacity-75 hover:opacity-100",
       )}
     >
-      {/* Status Indicators */}
-      <div className="absolute right-3 top-3 z-10 flex gap-1.5">
-        {bookmark.isFavorite && (
+      {/* Promotion Badge */}
+      {bookmark.isPromoted && (
+        <div className="absolute left-3 top-3 z-10">
           <Badge
-            variant="secondary"
-            className="bg-yellow-500/10 text-yellow-500 backdrop-blur-sm"
+            className="bg-purple-500 text-white border-0"
+            style={{ width: '32px', height: '32px', borderRadius: '4px' }}
           >
-            <Star className="h-3 w-3" aria-label="Favorite bookmark" />
+            <Megaphone className="h-3 w-3 text-white" />
           </Badge>
-        )}
-        {bookmark.isArchived && (
+        </div>
+      )}
+
+      {/* Archive Badge */}
+      {bookmark.isArchived && (
+        <div className="absolute right-3 top-3 z-10">
           <Badge
             variant="secondary"
             className="bg-gray-500/10 text-gray-500 backdrop-blur-sm"
+            style={{ width: '32px', height: '32px', borderRadius: '4px' }}
           >
             <Archive className="h-3 w-3" aria-label="Archived bookmark" />
           </Badge>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Preview Image Container */}
       <Link
@@ -91,9 +177,37 @@ export const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
       <div className="flex flex-1 flex-col p-4">
         {/* Title and Description */}
         <div className="flex-1 space-y-1">
-          <h2 className="font-semibold leading-tight tracking-tight">
-            {bookmark.title}
-          </h2>
+          <div className="flex items-center gap-2">
+            {bookmark.favicon ? (
+              <img
+                src={bookmark.favicon}
+                alt="Site favicon"
+                width={16}
+                height={16}
+                className="h-4 w-4"
+              />
+            ) : (
+              <Bookmark
+                className="h-4 w-4 text-muted-foreground"
+                aria-hidden="true"
+              />
+            )}
+            <h2 className="font-semibold leading-tight tracking-tight flex-1">
+              {bookmark.title}
+            </h2>
+            {bookmark.category && (
+              <Badge
+                style={{
+                  backgroundColor:
+                    bookmark.category.color || "hsl(var(--primary))",
+                  color: "white",
+                }}
+                className="w-fit"
+              >
+                {bookmark.category.icon} {bookmark.category.name}
+              </Badge>
+            )}
+          </div>
           {bookmark.description && (
             <p className="line-clamp-2 text-sm text-muted-foreground">
               {bookmark.description}
@@ -103,36 +217,6 @@ export const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
 
                   {/* Bottom Section */}
           <div className="space-y-3 pt-4">
-            {/* Category and Site Info */}
-            <div className="flex items-center gap-2">
-              {bookmark.favicon ? (
-                <img
-                  src={bookmark.favicon}
-                  alt="Site favicon"
-                  width={16}
-                  height={16}
-                  className="h-4 w-4"
-                />
-              ) : (
-                <Bookmark
-                  className="h-4 w-4 text-muted-foreground"
-                  aria-hidden="true"
-                />
-              )}
-              {bookmark.category && (
-                <Badge
-                  style={{
-                    backgroundColor:
-                      bookmark.category.color || "hsl(var(--primary))",
-                    color: "white",
-                  }}
-                  className="w-fit transition-transform hover:scale-105"
-                >
-                  {bookmark.category.icon} {bookmark.category.name}
-                </Badge>
-              )}
-            </div>
-
             {/* Tags */}
             {bookmark.tags && (
               <div className="flex flex-wrap gap-1">
@@ -150,10 +234,26 @@ export const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2">
+            {showFavoriteButton && (
+              <Button
+                variant={isFavorited ? "default" : "outline"}
+                size="sm"
+                onClick={handleFavoriteToggle}
+                disabled={isLoading}
+                className="flex-shrink-0"
+              >
+                <Smile 
+                  className={cn(
+                    "h-4 w-4",
+                    isFavorited ? "fill-current" : ""
+                  )} 
+                />
+              </Button>
+            )}
             <Button
               variant="secondary"
               size="sm"
-              className="w-full font-medium"
+              className="flex-1 font-medium"
               asChild
             >
               <Link href={detailsUrl}>View Details</Link>
@@ -161,7 +261,7 @@ export const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
             <Button
               variant="outline"
               size="sm"
-              className="group/link w-full font-medium"
+              className="flex-1 font-medium"
               asChild
             >
               <Link
@@ -170,8 +270,7 @@ export const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center"
               >
-                Visit Site
-                <ExternalLink className="ml-2 h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                <ExternalLink className="h-4 w-4" />
               </Link>
             </Button>
           </div>

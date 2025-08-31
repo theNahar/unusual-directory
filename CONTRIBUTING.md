@@ -108,7 +108,7 @@ Thank you for your interest in contributing to our Directory App! This document 
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/directory-app.git
+git clone https://github.com/theNahar/directory-app.git
 cd directory-app
 
 # Install dependencies

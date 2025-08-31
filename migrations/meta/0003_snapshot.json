@@ -1,0 +1,294 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "tables": {
+    "analytics": {
+      "name": "analytics",
+      "schema": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "autoIncrement": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "notNull": true
+        },
+        "bookmarkId": {
+          "name": "bookmark_id",
+          "type": "integer",
+          "references": {
+            "table": "bookmarks",
+            "column": "id"
+          },
+          "onDelete": "cascade"
+        },
+        "userId": {
+          "name": "user_id",
+          "type": "text",
+          "references": {
+            "table": "users",
+            "column": "id"
+          },
+          "onDelete": "cascade"
+        },
+        "sessionId": {
+          "name": "session_id",
+          "type": "text"
+        },
+        "userAgent": {
+          "name": "user_agent",
+          "type": "text"
+        },
+        "ipAddress": {
+          "name": "ip_address",
+          "type": "text"
+        },
+        "referrer": {
+          "name": "referrer",
+          "type": "text"
+        },
+        "createdAt": {
+          "name": "created_at",
+          "type": "integer",
+          "notNull": true,
+          "default": "(unixepoch())"
+        }
+      }
+    },
+    "bookmarks": {
+      "name": "bookmarks",
+      "schema": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "autoIncrement": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "notNull": true,
+          "unique": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "notNull": true,
+          "unique": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text"
+        },
+        "categoryId": {
+          "name": "category_id",
+          "type": "text",
+          "references": {
+            "table": "categories",
+            "column": "id"
+          }
+        },
+        "tags": {
+          "name": "tags",
+          "type": "text"
+        },
+        "favicon": {
+          "name": "favicon",
+          "type": "text"
+        },
+        "ogImage": {
+          "name": "og_image",
+          "type": "text"
+        },
+        "overview": {
+          "name": "overview",
+          "type": "text"
+        },
+        "isPromoted": {
+          "name": "is_promoted",
+          "type": "integer",
+          "notNull": true,
+          "default": 0
+        },
+        "promotionExpires": {
+          "name": "promotion_expires",
+          "type": "integer"
+        },
+        "visitCount": {
+          "name": "visit_count",
+          "type": "integer",
+          "notNull": true,
+          "default": 0
+        },
+        "favoriteCount": {
+          "name": "favorite_count",
+          "type": "integer",
+          "notNull": true,
+          "default": 0
+        },
+        "createdAt": {
+          "name": "created_at",
+          "type": "integer",
+          "notNull": true,
+          "default": "(unixepoch())"
+        },
+        "updatedAt": {
+          "name": "updated_at",
+          "type": "integer",
+          "notNull": true,
+          "default": "(unixepoch())"
+        },
+        "isArchived": {
+          "name": "is_archived",
+          "type": "integer",
+          "notNull": true,
+          "default": 0
+        },
+        "searchResults": {
+          "name": "search_results",
+          "type": "text"
+        }
+      }
+    },
+    "categories": {
+      "name": "categories",
+      "schema": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "notNull": true,
+          "unique": true
+        },
+        "color": {
+          "name": "color",
+          "type": "text"
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text"
+        },
+        "createdAt": {
+          "name": "created_at",
+          "type": "integer",
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updatedAt": {
+          "name": "updated_at",
+          "type": "integer"
+        }
+      }
+    },
+    "user_favorites": {
+      "name": "user_favorites",
+      "schema": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "autoIncrement": true,
+          "notNull": true
+        },
+        "userId": {
+          "name": "user_id",
+          "type": "text",
+          "notNull": true,
+          "references": {
+            "table": "users",
+            "column": "id"
+          },
+          "onDelete": "cascade"
+        },
+        "bookmarkId": {
+          "name": "bookmark_id",
+          "type": "integer",
+          "notNull": true,
+          "references": {
+            "table": "bookmarks",
+            "column": "id"
+          },
+          "onDelete": "cascade"
+        },
+        "createdAt": {
+          "name": "created_at",
+          "type": "integer",
+          "notNull": true,
+          "default": "(unixepoch())"
+        }
+      }
+    },
+    "users": {
+      "name": "users",
+      "schema": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "notNull": true,
+          "unique": true
+        },
+        "emailVerified": {
+          "name": "email_verified",
+          "type": "integer",
+          "notNull": true,
+          "default": 0
+        },
+        "verificationToken": {
+          "name": "verification_token",
+          "type": "text"
+        },
+        "verificationExpires": {
+          "name": "verification_expires",
+          "type": "integer"
+        },
+        "passwordHash": {
+          "name": "password_hash",
+          "type": "text"
+        },
+        "createdAt": {
+          "name": "created_at",
+          "type": "integer",
+          "notNull": true,
+          "default": "(unixepoch())"
+        },
+        "updatedAt": {
+          "name": "updated_at",
+          "type": "integer",
+          "notNull": true,
+          "default": "(unixepoch())"
+        },
+        "lastSignIn": {
+          "name": "last_sign_in",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

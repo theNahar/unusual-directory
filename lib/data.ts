@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
-import { bookmarks, categories } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { bookmarks, categories, userFavorites } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 
 export type Bookmark = typeof bookmarks.$inferSelect;
 export type Category = typeof categories.$inferSelect;
@@ -55,4 +55,29 @@ export async function getBookmarkBySlug(slug: string): Promise<(Bookmark & { cat
     ...results[0].bookmarks,
     category: results[0].categories,
   };
+}
+
+export async function getUserFavorites(userId: string): Promise<(Bookmark & { category: Category | null })[]> {
+  const results = await db
+    .select()
+    .from(userFavorites)
+    .innerJoin(bookmarks, eq(userFavorites.bookmarkId, bookmarks.id))
+    .leftJoin(categories, eq(bookmarks.categoryId, categories.id))
+    .where(eq(userFavorites.userId, userId))
+    .orderBy(userFavorites.createdAt);
+  
+  return results.map(row => ({
+    ...row.bookmarks,
+    category: row.categories,
+  }));
+}
+
+export async function isBookmarkFavorited(userId: string, bookmarkId: number): Promise<boolean> {
+  const results = await db
+    .select()
+    .from(userFavorites)
+    .where(and(eq(userFavorites.userId, userId), eq(userFavorites.bookmarkId, bookmarkId)))
+    .limit(1);
+  
+  return results.length > 0;
 }

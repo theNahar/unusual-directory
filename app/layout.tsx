@@ -2,15 +2,18 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import Image from "next/image";
 import Link from "next/link";
-import Logo from "@/public/logo.svg";
+import Logo from "@/public/u-d.svg";
 import "./globals.css";
 import { Manrope as Font } from "next/font/google";
 
 import { Button } from "@/components/ui/button";
 import { ThemeProvider } from "@/components/theme-provider";
+import { UserProvider } from "@/lib/user-context";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Container } from "@/components/craft";
 import { EmailForm } from "@/components/email-form";
+import { UserAccountButton } from "@/components/user-account-button";
+import { PromoteButton } from "@/components/promote-button";
 
 import { directory } from "@/directory.config";
 
@@ -34,6 +37,12 @@ export const metadata: Metadata = {
   title: directory.title,
   description: directory.description,
   metadataBase: new URL(directory.baseUrl),
+  icons: {
+    icon: [
+      { url: '/32.svg', sizes: '32x32', type: 'image/svg+xml' },
+      { url: '/64.svg', sizes: '64x64', type: 'image/svg+xml' },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -50,9 +59,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          {children}
-          <Footer />
+          <UserProvider>
+            <Header />
+            {children}
+            <Footer />
+          </UserProvider>
         </ThemeProvider>
         <Analytics />
       </body>
@@ -63,16 +74,31 @@ export default function RootLayout({
 const Header = () => {
   return (
     <header>
-      <Container className="flex items-start justify-between gap-3">
+      <Container className="flex items-center justify-between gap-3">
         <Link href="/" className="transition-all hover:opacity-80">
           <Image
             src={Logo}
-            alt="Design Engineer Logo"
+            alt="Unusual Directory Logo"
             width={96}
             height={39.68}
           />
         </Link>
-        <Subscribe />
+        
+        {/* Navigation Menu */}
+        <nav className="hidden md:flex items-center gap-6">
+          <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
+            Home
+          </Link>
+          <Link href="/contact" className="text-sm font-medium transition-colors hover:text-primary">
+            Contact
+          </Link>
+        </nav>
+        
+        <div className="flex items-center gap-2">
+          <PromoteButton />
+          <UserAccountButton />
+          <ThemeToggle />
+        </div>
       </Container>
     </header>
   );
@@ -84,7 +110,7 @@ const Footer = () => {
       <Container className="flex items-center justify-between gap-3">
         <div className="grid gap-1 text-xs text-muted-foreground">
           <p>
-            © {new Date().getFullYear()} {directory.name}.
+            © {new Date().getFullYear()} unusual-directory.
           </p>
           <p>
             Built with ❤️ for the open source community.

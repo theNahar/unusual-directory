@@ -40,7 +40,7 @@ import {
 } from "@/lib/actions";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Upload, Loader2, Trash2 } from "lucide-react";
+import { Plus, Upload, Loader2, Trash2, ArrowUpDown } from "lucide-react";
 
 interface Category {
   id: string;
@@ -65,11 +65,12 @@ interface Bookmark {
   ogImage: string | null;
   categoryId: string | null;
   tags: string | null;
-  isFavorite: boolean;
   isArchived: boolean;
+  isPromoted: boolean;
+  visitCount: number;
+  favoriteCount: number;
   createdAt: Date;
   updatedAt: Date;
-  notes: string | null;
 }
 
 interface BookmarkWithCategory extends Bookmark {
@@ -96,6 +97,8 @@ export function BookmarkManager({
   const [isSaving, setIsSaving] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isBulkSheetOpen, setIsBulkSheetOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<"default" | "favorites" | "visits">("default");
+  const [sortedBookmarks, setSortedBookmarks] = useState(bookmarks);
 
   const [bulkUploadState, setBulkUploadState] = useState<ActionState | null>(
     null,
@@ -147,14 +150,33 @@ export function BookmarkManager({
     imageUrl: "", // New field for screenshot API URL
     categoryId: "none",
     tags: "",
-    isFavorite: false,
     isArchived: false,
+    isPromoted: false,
   });
 
   // Screenshot API state
   const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [screenshotError, setScreenshotError] = useState<string | null>(null);
+
+  // Sorting functionality
+  useEffect(() => {
+    let sorted = [...bookmarks];
+    
+    switch (sortBy) {
+      case "favorites":
+        sorted.sort((a, b) => (b.favoriteCount || 0) - (a.favoriteCount || 0));
+        break;
+      case "visits":
+        sorted.sort((a, b) => (b.visitCount || 0) - (a.visitCount || 0));
+        break;
+      default:
+        sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+    }
+    
+    setSortedBookmarks(sorted);
+  }, [bookmarks, sortBy]);
 
   // Screenshot API function
   const takeScreenshot = async (url: string) => {
@@ -241,8 +263,8 @@ export function BookmarkManager({
         search_results: formData.get("search_results") as string,
         categoryId: formData.get("categoryId") as string,
         tags: formData.get("tags") as string,
-        isFavorite: formData.get("isFavorite") ? "true" : "false",
         isArchived: formData.get("isArchived") ? "true" : "false",
+        isPromoted: formData.get("isPromoted") ? "true" : "false",
       };
 
       if (!isNewBookmark) {
@@ -287,8 +309,8 @@ export function BookmarkManager({
           imageUrl: "",
           categoryId: selectedBookmark.categoryId?.toString() || "none",
           tags: selectedBookmark.tags || "",
-          isFavorite: selectedBookmark.isFavorite,
           isArchived: selectedBookmark.isArchived,
+          isPromoted: selectedBookmark.isPromoted,
         });
       } else {
         resetForm();
@@ -308,8 +330,8 @@ export function BookmarkManager({
       imageUrl: "",
       categoryId: "none",
       tags: "",
-      isFavorite: false,
       isArchived: false,
+      isPromoted: false,
     });
     setUploadedImage(null);
   };
@@ -317,12 +339,27 @@ export function BookmarkManager({
   const handleEdit = (bookmark: BookmarkWithCategory) => {
     setSelectedBookmark(bookmark);
     setIsNewBookmark(false);
+    setFormData({
+      title: bookmark.title,
+      slug: bookmark.slug,
+      url: bookmark.url,
+      description: bookmark.description || "",
+      overview: bookmark.overview || "",
+      search_results: bookmark.search_results || "",
+      ogImage: bookmark.ogImage || "",
+      imageUrl: "",
+      categoryId: bookmark.categoryId || "none",
+      tags: bookmark.tags || "",
+      isArchived: bookmark.isArchived,
+      isPromoted: bookmark.isPromoted,
+    });
     setIsSheetOpen(true);
   };
 
   const handleNew = () => {
     setSelectedBookmark(null);
     setIsNewBookmark(true);
+    resetForm();
     setIsSheetOpen(true);
   };
 
@@ -443,6 +480,16 @@ export function BookmarkManager({
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Manage Bookmarks</h2>
         <div className="flex items-center gap-2">
+          <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Recently Added</SelectItem>
+              <SelectItem value="favorites">Most Favorited</SelectItem>
+              <SelectItem value="visits">Most Visited</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             onClick={() => setIsBulkSheetOpen(true)}
             size="sm"
@@ -463,14 +510,16 @@ export function BookmarkManager({
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
-                              <TableHead>Category</TableHead>
-                <TableHead>Tags</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Tags</TableHead>
+              <TableHead>Visits</TableHead>
+              <TableHead>Favorited</TableHead>
+              <TableHead>Archived</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {bookmarks.map((bookmark) => (
+            {sortedBookmarks.map((bookmark) => (
               <TableRow key={bookmark.id}>
                 <TableCell className="font-medium">{bookmark.title}</TableCell>
                 <TableCell>
@@ -500,15 +549,12 @@ export function BookmarkManager({
                     </div>
                   )}
                 </TableCell>
+                <TableCell>{bookmark.visitCount || 0}</TableCell>
+                <TableCell>{bookmark.favoriteCount || 0}</TableCell>
                 <TableCell>
-                  <div className="flex gap-2">
-                    {bookmark.isFavorite && (
-                      <Badge variant="secondary">Favorite</Badge>
-                    )}
-                    {bookmark.isArchived && (
-                      <Badge variant="secondary">Archived</Badge>
-                    )}
-                  </div>
+                  <Badge variant={bookmark.isArchived ? "secondary" : "outline"}>
+                    {bookmark.isArchived ? "Yes" : "No"}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
@@ -564,33 +610,55 @@ export function BookmarkManager({
 
             <div className="space-y-4">
               <div className="grid gap-4">
-                {/* 1. Name (renamed from Title) */}
-                <div className="space-y-2">
-                  <Label htmlFor="title">Name</Label>
-                  <Input
-                    id="title"
-                    name="title"
-                    required
-                    value={formData.title}
-                    onChange={handleTitleChange}
-                    placeholder="Enter bookmark name"
-                  />
+                {/* 1. Name and Promoted - 2 column layout */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Name</Label>
+                    <Input
+                      id="title"
+                      name="title"
+                      required
+                      value={formData.title}
+                      onChange={handleTitleChange}
+                      placeholder="Enter bookmark name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="isPromoted">Promoted</Label>
+                    <Select
+                      value={formData.isPromoted ? "yes" : "no"}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isPromoted: value === "yes",
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
-                {/* 2. Description */}
+                {/* 2. Overview (renamed from Description) */}
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="overview">Overview</Label>
                   <Textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
+                    id="overview"
+                    name="overview"
+                    value={formData.overview}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        description: e.target.value,
+                        overview: e.target.value,
                       }))
                     }
-                    placeholder="Brief description of the bookmark"
+                    placeholder="Brief overview of the bookmark"
                   />
                 </div>
 
@@ -618,93 +686,131 @@ export function BookmarkManager({
                   </Select>
                 </div>
 
-                {/* 4. Tags */}
+                {/* 4. Tags - Badge-like input */}
                 <div className="space-y-2">
                   <Label htmlFor="tags">Tags</Label>
-                  <Input
-                    id="tags"
-                    name="tags"
-                    value={formData.tags}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        tags: e.target.value,
-                      }))
-                    }
-                    placeholder="Enter tags separated by commas (e.g., free, premium, tool, tutorial)"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Separate multiple tags with commas
-                  </p>
-                </div>
-
-                {/* 5. Overview */}
-                <div className="space-y-2">
-                  <Label htmlFor="overview">Overview</Label>
-                  <Textarea
-                    id="overview"
-                    name="overview"
-                    value={formData.overview}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        overview: e.target.value,
-                      }))
-                    }
-                    placeholder="Detailed overview or notes about the bookmark"
-                  />
-                </div>
-
-
-
-                {/* 6. Image */}
-                <div className="space-y-2">
-                  <Label htmlFor="imageUrl">Image</Label>
                   <div className="space-y-2">
-                    {/* Screenshot URL Input */}
                     <Input
-                      id="imageUrl"
-                      name="imageUrl"
-                      type="url"
-                      value={formData.imageUrl}
+                      id="tags"
+                      name="tags"
+                      value={formData.tags}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
-                          imageUrl: e.target.value,
+                          tags: e.target.value,
                         }))
                       }
-                      placeholder="https://example.com (for screenshot)"
+                      placeholder="Type a tag and press Enter or comma"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ',') {
+                          e.preventDefault();
+                          // Add tag logic here
+                        }
+                      }}
                     />
-                    
-                    {/* File Upload */}
-                    <div className="flex items-center gap-2">
+                    {/* Display tags as badges */}
+                    {formData.tags && (
+                      <div className="flex flex-wrap gap-2">
+                        {formData.tags.split(',').map((tag, index) => (
+                          <Badge key={index} variant="secondary" className="gap-1">
+                            {tag.trim()}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const tags = formData.tags.split(',').filter((_, i) => i !== index).join(',');
+                                setFormData(prev => ({ ...prev, tags }));
+                              }}
+                              className="ml-1 hover:text-destructive"
+                            >
+                              ×
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 5. Description (renamed from Overview) */}
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    placeholder="Detailed description of the bookmark"
+                  />
+                </div>
+
+
+
+                {/* 6. URL Field */}
+                <div className="space-y-2">
+                  <Label htmlFor="url">URL</Label>
+                  <Input
+                    id="url"
+                    name="url"
+                    type="url"
+                    required
+                    value={formData.url}
+                    onChange={handleUrlChange}
+                    placeholder="https://example.com"
+                  />
+                </div>
+
+                {/* 7. Image */}
+                <div className="space-y-2">
+                  <Label htmlFor="imageUrl">Image</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {/* Left column - URL and Upload fields */}
+                    <div className="col-span-2 space-y-2">
+                      {/* Screenshot URL Input */}
+                      <Input
+                        id="imageUrl"
+                        name="imageUrl"
+                        type="url"
+                        value={formData.imageUrl}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            imageUrl: e.target.value,
+                          }))
+                        }
+                        placeholder="https://example.com (for screenshot)"
+                      />
+                      
+                      {/* File Upload */}
                       <Input
                         id="imageUpload"
                         name="imageUpload"
                         type="file"
                         accept="image/*"
                         onChange={(e) => setUploadedImage(e.target.files?.[0] || null)}
-                        className="flex-1"
                       />
                     </div>
                     
-                    {/* Process Button */}
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={handleImageProcess}
-                      disabled={isTakingScreenshot}
-                      className="w-full"
-                    >
-                      {isTakingScreenshot ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Taking Screenshot...
-                        </>
-                      ) : (
-                        "Process Image"
-                      )}
-                    </Button>
+                    {/* Right column - Process Button */}
+                    <div className="flex items-end">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleImageProcess}
+                        disabled={isTakingScreenshot}
+                        className="w-full h-10"
+                      >
+                        {isTakingScreenshot ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Upload className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   
                   {/* Display current image */}
@@ -727,49 +833,26 @@ export function BookmarkManager({
                   )}
                 </div>
 
-                {/* 7. URL Field */}
+                {/* 8. Archived */}
                 <div className="space-y-2">
-                  <Label htmlFor="url">URL</Label>
-                  <Input
-                    id="url"
-                    name="url"
-                    type="url"
-                    required
-                    value={formData.url}
-                    onChange={handleUrlChange}
-                    placeholder="https://example.com"
-                  />
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="isFavorite"
-                      name="isFavorite"
-                      checked={formData.isFavorite}
-                      onCheckedChange={(checked) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          isFavorite: checked as boolean,
-                        }))
-                      }
-                    />
-                    <Label htmlFor="isFavorite">Favorite</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="isArchived"
-                      name="isArchived"
-                      checked={formData.isArchived}
-                      onCheckedChange={(checked) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          isArchived: checked as boolean,
-                        }))
-                      }
-                    />
-                    <Label htmlFor="isArchived">Archived</Label>
-                  </div>
+                  <Label htmlFor="isArchived">Archived</Label>
+                  <Select
+                    value={formData.isArchived ? "yes" : "no"}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        isArchived: value === "yes",
+                      }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>

@@ -11,6 +11,8 @@ import { BookmarkCard } from "@/components/bookmark-card";
 import { BookmarkGrid } from "@/components/bookmark-grid";
 import { CategoryFilter } from "@/components/category-filter";
 import { EmailForm } from "@/components/email-form";
+import { AnalyticsTracker } from "@/components/analytics-tracker";
+import { SearchAndFilterSection } from "@/components/search-and-filter-section";
 
 import Balancer from "react-wrap-balancer";
 
@@ -37,13 +39,14 @@ export default async function Home({
         bookmark.title.toLowerCase().includes(searchTerm) ||
         bookmark.description?.toLowerCase().includes(searchTerm) ||
         bookmark.category?.name.toLowerCase().includes(searchTerm) ||
-        bookmark.notes?.toLowerCase().includes(searchTerm) ||
-        bookmark.overview?.toLowerCase().includes(searchTerm)
+        bookmark.overview?.toLowerCase().includes(searchTerm) ||
+        bookmark.tags?.toLowerCase().includes(searchTerm)
       );
     });
 
   return (
     <Main>
+      <AnalyticsTracker pageType="home" />
       <Section>
         <Container>
           <div className="mx-auto max-w-2xl space-y-8 text-center">
@@ -54,11 +57,15 @@ export default async function Home({
             </h1>
             <EmailForm />
             <p className="text-sm text-muted-foreground">
-              Join 1,998+ developers · Unsubscribe anytime
+              Join unusual-people · Unsubscribe anytime
             </p>
           </div>
 
-          <div className="mt-24 space-y-6">
+          {/* Second Hero Section - Categories */}
+          <div className="mt-16 space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold tracking-tight">Category</h2>
+            </div>
             <Suspense fallback={<div>Loading categories...</div>}>
               <CategoryFilter
                 categories={categories.map((cat) => ({
@@ -69,43 +76,14 @@ export default async function Home({
                 }))}
               />
             </Suspense>
+          </div>
 
-            <BookmarkGrid>
-              {filteredBookmarks.map((bookmark) => (
-                <BookmarkCard
-                  key={bookmark.id}
-                  bookmark={{
-                    id: bookmark.id,
-                    url: bookmark.url,
-                    title: bookmark.title,
-                    description: bookmark.description,
-                    category: bookmark.category
-                      ? {
-                          id: bookmark.category.id.toString(),
-                          name: bookmark.category.name,
-                          color: bookmark.category.color || undefined,
-                          icon: bookmark.category.icon || undefined,
-                        }
-                      : undefined,
-                    favicon: bookmark.favicon,
-                    overview: bookmark.overview,
-                    ogImage: bookmark.ogImage,
-                    isArchived: bookmark.isArchived,
-                    isFavorite: bookmark.isFavorite,
-                    slug: bookmark.slug,
-                  }}
-                />
-              ))}
-            </BookmarkGrid>
-
-            {filteredBookmarks.length === 0 && (
-              <div className="py-8 text-center text-gray-500">
-                No bookmarks found
-                {searchParams.search && ` matching "${searchParams.search}"`}
-                {searchParams.category &&
-                  ` in category "${categories.find((c) => c.id.toString() === searchParams.category)?.name}"`}
-              </div>
-            )}
+          {/* Search and Filter Section */}
+          <div className="mt-16 space-y-6">
+            <SearchAndFilterSection 
+              bookmarks={filteredBookmarks}
+              categories={categories}
+            />
           </div>
         </Container>
       </Section>

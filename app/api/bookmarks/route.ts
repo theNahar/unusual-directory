@@ -28,14 +28,12 @@ export async function POST(request: Request) {
       categoryId: body.categoryId || null,
       overview: body.overview || null,
       favicon: body.favicon || null,
-      screenshot: body.screenshot || null,
       ogImage: body.ogImage || null,
-      ogTitle: body.ogTitle || null,
-      ogDescription: body.ogDescription || null,
-      notes: body.notes || null,
       tags: body.tags || null,
       isArchived: body.isArchived || false,
-      isFavorite: body.isFavorite || false,
+      isPromoted: body.isPromoted || false,
+      visitCount: body.visitCount || 0,
+      favoriteCount: body.favoriteCount || 0,
       search_results: body.search_results || null,
     });
 
