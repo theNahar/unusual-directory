@@ -160,6 +160,44 @@ export function BookmarkManager({
   const [screenshotError, setScreenshotError] = useState<string | null>(null);
 
   // Sorting functionality
+  const handleSort = (column: string) => {
+    let sorted = [...sortedBookmarks];
+    
+    switch (column) {
+      case "title":
+        sorted.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "category":
+        sorted.sort((a, b) => {
+          const catA = a.category?.name || "";
+          const catB = b.category?.name || "";
+          return catA.localeCompare(catB);
+        });
+        break;
+      case "tags":
+        sorted.sort((a, b) => {
+          const tagsA = a.tags || "";
+          const tagsB = b.tags || "";
+          return tagsA.localeCompare(tagsB);
+        });
+        break;
+      case "visits":
+        sorted.sort((a, b) => (b.visitCount || 0) - (a.visitCount || 0));
+        break;
+      case "favorites":
+        sorted.sort((a, b) => (b.favoriteCount || 0) - (a.favoriteCount || 0));
+        break;
+      case "archived":
+        sorted.sort((a, b) => Number(a.isArchived) - Number(b.isArchived));
+        break;
+      default:
+        sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+    }
+    
+    setSortedBookmarks(sorted);
+  };
+
   useEffect(() => {
     let sorted = [...bookmarks];
     
@@ -263,8 +301,8 @@ export function BookmarkManager({
         search_results: formData.get("search_results") as string,
         categoryId: formData.get("categoryId") as string,
         tags: formData.get("tags") as string,
-        isArchived: formData.get("isArchived") ? "true" : "false",
-        isPromoted: formData.get("isPromoted") ? "true" : "false",
+        isArchived: formData.get("isArchived") as string,
+        isPromoted: formData.get("isPromoted") as string,
       };
 
       if (!isNewBookmark) {
@@ -283,6 +321,8 @@ export function BookmarkManager({
         );
         setIsSheetOpen(false);
         resetForm();
+        // Refresh the bookmarks list
+        window.location.reload();
       } else {
         toast.error("Failed to save bookmark");
       }
@@ -480,27 +520,8 @@ export function BookmarkManager({
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Manage Bookmarks</h2>
         <div className="flex items-center gap-2">
-          <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="default">Recently Added</SelectItem>
-              <SelectItem value="favorites">Most Favorited</SelectItem>
-              <SelectItem value="visits">Most Visited</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={() => setIsBulkSheetOpen(true)}
-            size="sm"
-            variant="outline"
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Bulk Upload
-          </Button>
           <Button onClick={handleNew} size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Bookmark
+            <Plus className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -509,12 +530,60 @@ export function BookmarkManager({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Tags</TableHead>
-              <TableHead>Visits</TableHead>
-              <TableHead>Favorited</TableHead>
-              <TableHead>Archived</TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('title')}
+              >
+                <div className="flex items-center gap-1">
+                  Title
+                  <ArrowUpDown className="h-3 w-3" />
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('category')}
+              >
+                <div className="flex items-center gap-1">
+                  Category
+                  <ArrowUpDown className="h-3 w-3" />
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('tags')}
+              >
+                <div className="flex items-center gap-1">
+                  Tags
+                  <ArrowUpDown className="h-3 w-3" />
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('visits')}
+              >
+                <div className="flex items-center gap-1">
+                  Visits
+                  <ArrowUpDown className="h-3 w-3" />
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('favorites')}
+              >
+                <div className="flex items-center gap-1">
+                  Favorited
+                  <ArrowUpDown className="h-3 w-3" />
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('archived')}
+              >
+                <div className="flex items-center gap-1">
+                  Archived
+                  <ArrowUpDown className="h-3 w-3" />
+                </div>
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -626,6 +695,7 @@ export function BookmarkManager({
                   <div className="space-y-2">
                     <Label htmlFor="isPromoted">Promoted</Label>
                     <Select
+                      name="isPromoted"
                       value={formData.isPromoted ? "yes" : "no"}
                       onValueChange={(value) =>
                         setFormData((prev) => ({
@@ -645,93 +715,7 @@ export function BookmarkManager({
                   </div>
                 </div>
 
-                {/* 2. Overview (renamed from Description) */}
-                <div className="space-y-2">
-                  <Label htmlFor="overview">Overview</Label>
-                  <Textarea
-                    id="overview"
-                    name="overview"
-                    value={formData.overview}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        overview: e.target.value,
-                      }))
-                    }
-                    placeholder="Brief overview of the bookmark"
-                  />
-                </div>
-
-                {/* 3. Category */}
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Select
-                    name="categoryId"
-                    value={formData.categoryId}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, categoryId: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No Category</SelectItem>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* 4. Tags - Badge-like input */}
-                <div className="space-y-2">
-                  <Label htmlFor="tags">Tags</Label>
-                  <div className="space-y-2">
-                    <Input
-                      id="tags"
-                      name="tags"
-                      value={formData.tags}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          tags: e.target.value,
-                        }))
-                      }
-                      placeholder="Type a tag and press Enter or comma"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ',') {
-                          e.preventDefault();
-                          // Add tag logic here
-                        }
-                      }}
-                    />
-                    {/* Display tags as badges */}
-                    {formData.tags && (
-                      <div className="flex flex-wrap gap-2">
-                        {formData.tags.split(',').map((tag, index) => (
-                          <Badge key={index} variant="secondary" className="gap-1">
-                            {tag.trim()}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const tags = formData.tags.split(',').filter((_, i) => i !== index).join(',');
-                                setFormData(prev => ({ ...prev, tags }));
-                              }}
-                              className="ml-1 hover:text-destructive"
-                            >
-                              ×
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* 5. Description (renamed from Overview) */}
+                {/* 2. Description */}
                 <div className="space-y-2">
                   <Label htmlFor="description">Description</Label>
                   <Textarea
@@ -748,23 +732,129 @@ export function BookmarkManager({
                   />
                 </div>
 
+                {/* 3. Category and Tags - 2 column layout */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Select
+                      name="categoryId"
+                      value={formData.categoryId}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, categoryId: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No Category</SelectItem>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tags">Tags</Label>
+                    <div className="space-y-2">
+                      <Input
+                        id="tags"
+                        name="tags"
+                        value={formData.tags}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            tags: e.target.value,
+                          }))
+                        }
+                        placeholder="Type a tag and press Enter or comma"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ',') {
+                            e.preventDefault();
+                            // Add tag logic here
+                          }
+                        }}
+                      />
+                      {/* Display tags as badges */}
+                      {formData.tags && (
+                        <div className="flex flex-wrap gap-2">
+                          {formData.tags.split(',').map((tag, index) => (
+                            <Badge key={index} variant="secondary" className="gap-1">
+                              {tag.trim()}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const tags = formData.tags.split(',').filter((_, i) => i !== index).join(',');
+                                  setFormData(prev => ({ ...prev, tags }));
+                                }}
+                                className="ml-1 hover:text-destructive"
+                              >
+                                ×
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
 
-                {/* 6. URL Field */}
+
+
+
+                {/* 4. Bookmark Page URL */}
                 <div className="space-y-2">
-                  <Label htmlFor="url">URL</Label>
+                  <Label htmlFor="pageUrl">Bookmark Page URL</Label>
                   <Input
-                    id="url"
-                    name="url"
-                    type="url"
-                    required
-                    value={formData.url}
-                    onChange={handleUrlChange}
-                    placeholder="https://example.com"
+                    id="pageUrl"
+                    name="pageUrl"
+                    value={`https://dir.nahar.tv/${formData.slug}`}
+                    disabled
+                    className="bg-muted"
                   />
                 </div>
 
-                {/* 7. Image */}
+                {/* 5. URL and Archived - 2 column layout */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="url">URL</Label>
+                    <Input
+                      id="url"
+                      name="url"
+                      type="url"
+                      required
+                      value={formData.url}
+                      onChange={handleUrlChange}
+                      placeholder="https://example.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="isArchived">Archived</Label>
+                    <Select
+                      name="isArchived"
+                      value={formData.isArchived ? "yes" : "no"}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isArchived: value === "yes",
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* 6. Image */}
                 <div className="space-y-2">
                   <Label htmlFor="imageUrl">Image</Label>
                   <div className="grid grid-cols-3 gap-2">
@@ -833,27 +923,7 @@ export function BookmarkManager({
                   )}
                 </div>
 
-                {/* 8. Archived */}
-                <div className="space-y-2">
-                  <Label htmlFor="isArchived">Archived</Label>
-                  <Select
-                    value={formData.isArchived ? "yes" : "no"}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        isArchived: value === "yes",
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+
               </div>
             </div>
 

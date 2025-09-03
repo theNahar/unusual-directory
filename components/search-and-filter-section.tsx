@@ -46,7 +46,7 @@ interface SearchAndFilterSectionProps {
   categories: Category[];
 }
 
-type ViewMode = "all" | "recent" | "favorites";
+type ViewMode = "all" | "recent" | "favorites" | "trending";
 
 export function SearchAndFilterSection({ bookmarks, categories }: SearchAndFilterSectionProps) {
   const { user } = useUser();
@@ -80,6 +80,9 @@ export function SearchAndFilterSection({ bookmarks, categories }: SearchAndFilte
       case "favorites":
         // This will be handled by the favorite filter
         return true;
+      case "trending":
+        // Show bookmarks with high visit count (trending)
+        return (bookmark.visitCount || 0) > 10;
       default:
         return true;
     }
@@ -92,6 +95,8 @@ export function SearchAndFilterSection({ bookmarks, categories }: SearchAndFilte
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       case "favorites":
         return (b.favoriteCount || 0) - (a.favoriteCount || 0);
+      case "trending":
+        return (b.visitCount || 0) - (a.visitCount || 0);
       default:
         return (b.favoriteCount || 0) - (a.favoriteCount || 0);
     }
@@ -117,19 +122,9 @@ export function SearchAndFilterSection({ bookmarks, categories }: SearchAndFilte
     <>
       <div className="space-y-6">
         {/* Search and Filter Controls */}
-        <div className="flex items-center gap-4">
-          {/* Favorite Button */}
-          <Button
-            variant={showFavorites ? "default" : "outline"}
-            size="sm"
-            onClick={handleFavoriteToggle}
-            className="flex-shrink-0"
-          >
-            <Smile className="h-4 w-4" />
-          </Button>
-
+        <div className="flex flex-col items-center gap-4">
           {/* Search Input */}
-          <div className="relative flex-1 max-w-md">
+          <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search bookmarks..."
@@ -139,15 +134,26 @@ export function SearchAndFilterSection({ bookmarks, categories }: SearchAndFilte
             />
           </div>
 
-          {/* Action Buttons */}
+          {/* Filter Controls */}
           <div className="flex items-center gap-2">
+            {/* Favorite Button */}
+            <Button
+              variant={showFavorites ? "default" : "outline"}
+              size="sm"
+              onClick={handleFavoriteToggle}
+              className="flex-shrink-0"
+            >
+              <Smile className="h-4 w-4" />
+            </Button>
+
+            {/* Action Buttons */}
             <Button
               variant={viewMode === "recent" ? "default" : "outline"}
               size="sm"
               onClick={() => setViewMode("recent")}
             >
               <Clock className="h-4 w-4 mr-1" />
-              Recently Added
+              New
             </Button>
             <Button
               variant={viewMode === "favorites" ? "default" : "outline"}
@@ -155,12 +161,21 @@ export function SearchAndFilterSection({ bookmarks, categories }: SearchAndFilte
               onClick={() => setViewMode("favorites")}
             >
               <Heart className="h-4 w-4 mr-1" />
-              Most Favorited
+              Hot
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setViewMode("trending")}
+            >
+              <i className="fas fa-fire mr-1"></i>
+              Trending
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleReportClick}
+              className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
             >
               <Flag className="h-4 w-4" />
             </Button>

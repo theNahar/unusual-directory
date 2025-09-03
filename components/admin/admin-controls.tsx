@@ -41,7 +41,7 @@ export function AdminControls({ isOpen, onOpenChange }: AdminControlsProps) {
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg">
+      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Settings2 className="h-5 w-5" />
@@ -104,6 +104,10 @@ export function AdminControls({ isOpen, onOpenChange }: AdminControlsProps) {
               </div>
               <Button variant="outline" size="sm" className="w-full">
                 Backup Database
+              </Button>
+              <Button variant="outline" size="sm" className="w-full">
+                <i className="fas fa-upload mr-2"></i>
+                Bulk Upload
               </Button>
             </CardContent>
           </Card>

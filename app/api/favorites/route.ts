@@ -5,7 +5,10 @@ import { eq, and } from "drizzle-orm";
 import { verifyJWT } from "@/lib/auth";
 
 // Get user's favorites or check if specific bookmark is favorited
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { searchParams }: { searchParams: URLSearchParams }
+) {
   try {
     // Get auth token from cookies
     const authToken = request.cookies.get("auth-token")?.value;
@@ -26,7 +29,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if checking specific bookmark
-    const { searchParams } = new URL(request.url);
     const bookmarkId = searchParams.get("bookmarkId");
 
     if (bookmarkId) {
@@ -177,7 +179,10 @@ export async function POST(request: NextRequest) {
 }
 
 // Remove bookmark from favorites
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  request: NextRequest,
+  { searchParams }: { searchParams: URLSearchParams }
+) {
   try {
     // Get auth token from cookies
     const authToken = request.cookies.get("auth-token")?.value;
@@ -196,8 +201,6 @@ export async function DELETE(request: NextRequest) {
         { status: 401 }
       );
     }
-
-    const { searchParams } = new URL(request.url);
     const bookmarkId = searchParams.get("bookmarkId");
 
     if (!bookmarkId) {

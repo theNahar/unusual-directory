@@ -164,10 +164,20 @@ export function AdminDashboard({
             <TabsContent value="bookmarks" className="space-y-4">
               <div className="rounded-xl border bg-card">
                 <div className="border-b bg-muted/50 p-4">
-                  <h2 className="text-lg font-semibold">Bookmark Management</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Add, edit, and manage your bookmarks collection
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-semibold">Bookmark Management</h2>
+                      <p className="text-sm text-muted-foreground">
+                        Add, edit, and manage your bookmarks collection
+                      </p>
+                    </div>
+                    <Tabs defaultValue="all" className="w-auto">
+                      <TabsList className="grid w-auto grid-cols-2">
+                        <TabsTrigger value="all">All</TabsTrigger>
+                        <TabsTrigger value="promoted">Promoted</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </div>
                 </div>
                 <div className="p-6">
                   <BookmarkManager

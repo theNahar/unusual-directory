@@ -85,13 +85,8 @@ export const CategoryFilter = ({ categories }: CategoryFilterProps) => {
   }, SEARCH_DEBOUNCE_MS);
 
   return (
-    <div className="my-12 flex items-center justify-between space-y-2">
-      <div className="flex items-center gap-2">
-        <SearchInput
-          defaultValue={searchParams.get("search") ?? ""}
-          onChange={handleSearch}
-          isPending={isPending}
-        />
+    <div className="my-12 flex justify-center">
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Category filters">
         <Button
           variant={currentCategory === null ? "default" : "outline"}
           size="sm"
@@ -101,12 +96,6 @@ export const CategoryFilter = ({ categories }: CategoryFilterProps) => {
         >
           All
         </Button>
-      </div>
-      <div
-        className="!mt-0 flex flex-wrap gap-2"
-        role="group"
-        aria-label="Category filters"
-      >
         {categories.map((category) => (
           <Button
             key={category.id}

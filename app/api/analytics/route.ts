@@ -72,9 +72,11 @@ export async function POST(request: NextRequest) {
 }
 
 // Get analytics summary
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { searchParams }: { searchParams: URLSearchParams }
+) {
   try {
-    const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
     const bookmarkId = searchParams.get("bookmarkId");
 

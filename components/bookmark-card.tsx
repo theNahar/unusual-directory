@@ -120,7 +120,7 @@ export const BookmarkCard = ({
         "group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card",
         "transition-all duration-300 hover:shadow-lg",
         "hover:ring-2 hover:ring-accent hover:ring-offset-2",
-        bookmark.isArchived && "opacity-75 hover:opacity-100",
+        bookmark.isArchived && "opacity-75",
       )}
     >
       {/* Promotion Badge */}
@@ -234,13 +234,21 @@ export const BookmarkCard = ({
 
           {/* Action Buttons */}
           <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="flex-1 font-medium"
+              asChild
+            >
+              <Link href={detailsUrl}>View Details</Link>
+            </Button>
             {showFavoriteButton && (
               <Button
                 variant={isFavorited ? "default" : "outline"}
                 size="sm"
                 onClick={handleFavoriteToggle}
                 disabled={isLoading}
-                className="flex-shrink-0"
+                className="flex-shrink-0 w-10 h-10 p-0"
               >
                 <Smile 
                   className={cn(
@@ -251,24 +259,16 @@ export const BookmarkCard = ({
               </Button>
             )}
             <Button
-              variant="secondary"
-              size="sm"
-              className="flex-1 font-medium"
-              asChild
-            >
-              <Link href={detailsUrl}>View Details</Link>
-            </Button>
-            <Button
               variant="outline"
               size="sm"
-              className="flex-1 font-medium"
+              className="flex-shrink-0 w-10 h-10 p-0"
               asChild
             >
               <Link
                 href={externalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center"
+                className="inline-flex items-center justify-center"
               >
                 <ExternalLink className="h-4 w-4" />
               </Link>

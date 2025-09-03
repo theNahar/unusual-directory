@@ -74,18 +74,20 @@ export default function RootLayout({
 const Header = () => {
   return (
     <header>
-      <Container className="flex items-center justify-between gap-3">
+      <Container className="grid grid-cols-3 items-center gap-3">
+        {/* Left: Logo */}
         <Link href="/" className="transition-all hover:opacity-80">
           <Image
             src={Logo}
             alt="Unusual Directory Logo"
-            width={96}
-            height={39.68}
+            width={120}
+            height={49.6}
+            className="dark:invert"
           />
         </Link>
         
-        {/* Navigation Menu */}
-        <nav className="hidden md:flex items-center gap-6">
+        {/* Center: Navigation Menu */}
+        <nav className="hidden md:flex items-center justify-center gap-6">
           <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
             Home
           </Link>
@@ -94,10 +96,11 @@ const Header = () => {
           </Link>
         </nav>
         
-        <div className="flex items-center gap-2">
-          <PromoteButton />
+        {/* Right: Action Buttons */}
+        <div className="flex items-center justify-end gap-2">
           <UserAccountButton />
           <ThemeToggle />
+          <PromoteButton />
         </div>
       </Container>
     </header>
@@ -107,8 +110,8 @@ const Header = () => {
 const Footer = () => {
   return (
     <footer>
-      <Container className="flex items-center justify-between gap-3">
-        <div className="grid gap-1 text-xs text-muted-foreground">
+      <Container className="flex items-center justify-center gap-3">
+        <div className="grid gap-1 text-xs text-muted-foreground text-center">
           <p>
             © {new Date().getFullYear()} unusual-directory.
           </p>
@@ -116,7 +119,6 @@ const Footer = () => {
             Built with ❤️ for the open source community.
           </p>
         </div>
-        <ThemeToggle />
       </Container>
     </footer>
   );

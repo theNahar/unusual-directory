@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export const BackButton = () => {
   const router = useRouter();
@@ -12,7 +13,7 @@ export const BackButton = () => {
       onClick={() => router.back()}
       className="not-prose"
     >
-      Go Back
+      <ArrowLeft className="h-4 w-4 mr-2" />
     </Button>
   );
 };

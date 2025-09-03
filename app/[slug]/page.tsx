@@ -70,17 +70,29 @@ export default async function Page({ params }: Props) {
         {/* Navigation */}
         <div className="flex items-center justify-between">
           <BackButton />
-          <Button variant="outline" size="sm" asChild>
-            <Link
-              href={bookmark.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group gap-2"
-            >
-              <span>Visit Website</span>
-              <ExternalLink className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link
+                href={bookmark.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group gap-2"
+              >
+                <span>Report</span>
+                <i className="fas fa-flag h-4 w-4" />
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link
+                href={bookmark.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group gap-2"
+              >
+                <ExternalLink className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Preview Image or Fallback */}
@@ -169,9 +181,10 @@ export default async function Page({ params }: Props) {
               {bookmark.isArchived && (
                 <Badge
                   variant="secondary"
-                  className="h-6 gap-1 px-2 text-sm"
+                  className="bg-gray-500/10 text-gray-500 backdrop-blur-sm"
+                  style={{ width: '32px', height: '32px', borderRadius: '4px' }}
                 >
-                  📁 Archived
+                  <i className="fas fa-archive h-3 w-3" aria-label="Archived bookmark" />
                 </Badge>
               )}
               {bookmark.createdAt && (
@@ -185,12 +198,12 @@ export default async function Page({ params }: Props) {
             </div>
           </div>
 
-          {/* Overview Section */}
-          {bookmark.overview && (
+          {/* Description Section */}
+          {bookmark.description && (
             <div className="prose prose-gray max-w-none dark:prose-invert">
               <div className="rounded-xl bg-accent/50 p-6">
                 <h2 className="mt-0 flex items-center gap-2 text-xl font-semibold">
-                  Overview
+                  Description
                 </h2>
                 <Markdown
                   components={{
@@ -209,7 +222,7 @@ export default async function Page({ params }: Props) {
                     ),
                   }}
                 >
-                  {bookmark.overview}
+                  {bookmark.description}
                 </Markdown>
               </div>
             </div>

@@ -64,18 +64,20 @@ export default async function Home({
           {/* Second Hero Section - Categories */}
           <div className="mt-16 space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold tracking-tight">Category</h2>
+              <h2 className="text-2xl font-bold tracking-tight">Categories</h2>
             </div>
-            <Suspense fallback={<div>Loading categories...</div>}>
-              <CategoryFilter
-                categories={categories.map((cat) => ({
-                  id: cat.id.toString(),
-                  name: cat.name,
-                  color: cat.color || undefined,
-                  icon: cat.icon || undefined,
-                }))}
-              />
-            </Suspense>
+            <div className="flex justify-center">
+              <Suspense fallback={<div>Loading categories...</div>}>
+                <CategoryFilter
+                  categories={categories.map((cat) => ({
+                    id: cat.id.toString(),
+                    name: cat.name,
+                    color: cat.color || undefined,
+                    icon: cat.icon || undefined,
+                  }))}
+                />
+              </Suspense>
+            </div>
           </div>
 
           {/* Search and Filter Section */}
